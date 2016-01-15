@@ -1,0 +1,114 @@
+project LEDSControl {
+	infrastructure{
+		basePackage = "br.edu.ifes.sr.leds.indicadores"
+		projectVersion = "0.0.0"
+		language = {@name: "Java", @version: "8"}
+		framework = {@name: "SpringRoo", @version: "1.2"}
+		orm = {@name: "Hibernate", @version: "3"}
+		database = {
+			@version: "5", 
+			@name: "HYPERSONIC_IN_MEMORY",
+		}
+	}
+	 
+	interface ifaceIndica{
+		HtmlView interfaceWeb => appIndica
+		RestFull interfaceRest => appIndica
+	}
+	
+	application appIndica{
+		composedBy domIndica.*
+	} 
+	
+	domain domIndica {
+		module main {		
+			entity LEDS{
+			  String campus @max(200) 
+			  String ano @between(4, 4)
+			  List<Participante> participantes
+			  List<Professor> responsavel
+			  List<TrabalhoAcademico> trabalhosAcademicos
+			  List<Projeto> projetos
+			}
+			
+			abstract entity Participante {
+				String nome  @max(50)
+				String email @max(200)
+				boolean ativo
+				Curso curso
+				List<Apresentacao> apresentacoes
+			} 
+			
+			entity Professor ext Participante {
+				Datetime inicioParticipacao
+			}
+			entity Aluno ext Participante {
+				int periodo
+			}
+			
+			entity Curso {
+				String nome
+				Instituicao instituicao
+			}
+			
+			entity Instituicao {
+				String nome
+			}
+			
+			entity Apresentacao {
+				String titulo @max(300)
+				String ano @between(4, 4)
+				TipoApresentacao tipo
+			}
+			
+			enum TipoApresentacao {
+				Curso, Palestra
+			}
+			
+			entity Projeto { 
+				String nome @max(200)
+				String cliente @max(200)
+				String fomento @max(200)
+				String ano @between(4, 4)
+				double valor
+				boolean selecionado
+				Parceiro parceiro
+			}
+			
+			entity Parceiro {
+				String nome @max(200)
+				String endereco @max(300)
+				TipoParceiro tipo
+			}
+			
+			enum TipoParceiro {
+				Laboratorio, Empresa, Departamento_IFES
+			} 
+			
+			abstract entity TrabalhoAcademico {
+				String titulo @max(300)
+				String ano @between(4, 4)
+			}
+			
+			entity TrabalhoInterno ext TrabalhoAcademico{
+				Professor orientador 
+				Aluno orientando
+				TipoTrabalhoInterno tipo
+			}
+			
+			enum TipoTrabalhoInterno {
+				Projeto_Integrado, TCC, Artigo, Iniciacao_Cientifica	
+			}
+			
+			entity TrabalhoExterno ext TrabalhoAcademico {
+				String aluno
+				String orgao
+				TipoTrabalhoExterno tipo
+			} 
+			 
+			enum TipoTrabalhoExterno {
+				Pos_Graduacao, Graduacao, Mestrado, Doutorado				
+			}
+  		}
+	}
+}
